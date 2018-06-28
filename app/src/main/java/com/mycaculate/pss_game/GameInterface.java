@@ -2,9 +2,12 @@ package com.mycaculate.pss_game;
 
 import android.os.Handler;
 import android.os.Message;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -17,19 +20,34 @@ import android.widget.Toast;
 import java.util.HashMap;
 
 public class GameInterface extends AppCompatActivity implements View.OnClickListener{
+    //有四個ImageButton，剪刀石頭布、隨機步數按鈕
     ImageButton btn_paper,btn_sci,btn_stone,btn_rdn;
+    //有兩個ImageView，兩個角色
     ImageView myCharacter,hisCharacter;
+    //有兩個ImageView，對決時的雙方
     ImageView pic1,pic2;
+    //有一個TextView，顯示步數
     TextView showFoot;
+    //宣告AlertDialog
     AlertDialog.Builder builder;
     AlertDialog alertDialog;
+    //宣告我方和對方的剪刀石頭布對應的圖片、雙方最後的決定、隨機步數
     private int pss_id,his_pss_id,my_decision,his_decision,random, foot_rdn;
+    //宣告雙方隨機產生的數字1~3
     private int myrandom,hisrandom;
-    //隨機步數按鈕，贏、輸、或平手
+    //隨機步數按鈕，贏、輸、或平手的布林值
     boolean bool_rdn_btn = false,win=false,lose=false,dual=false;
     //角色圖片變動
-    private int[] char_id = new int[]{R.mipmap.lady_01,R.mipmap.lady_02,R.mipmap.lady_03,R.mipmap.lady_04};;
-    private int char_img = 0;
+    private int[] mychar_id = new int[]{R.mipmap.lady_01,R.mipmap.lady_02,R.mipmap.lady_03,R.mipmap.lady_04};
+    private int[] hischar_id = new int[]{R.mipmap.man_01,R.mipmap.man_02,R.mipmap.man_03,R.mipmap.man_04};
+    //宣告開始的角色圖片index
+    private int char_img = 1;
+    //宣告整個Layout
+    private ConstraintLayout constraintLayout;
+    //宣告Constraintset
+    private ConstraintSet applyconstraintset;
+    //每次移動Y軸
+    private int mypos_y = 60, hispos_y = 60;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,35 +67,11 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
         myCharacter = findViewById(R.id.mycharacter);
         hisCharacter=findViewById(R.id.hischaracter);
 
-
-        if(win == true){
-            Thread characterMove = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try{
-                        Thread.sleep(1000);
-                        for (int i =0; i<10; i++){
-                            handler.sendEmptyMessage(3);
-                            Thread.sleep(500);
-                        }
-
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            });
-            characterMove.start();
-        }
-        if(lose== true){
-
-        }
-
-        if(dual==true){
-
-        }
-
+        constraintLayout = findViewById(R.id.constraintlayout);
+        applyconstraintset = new ConstraintSet();
+        applyconstraintset.clone(constraintLayout);
     }
+
 
     @Override
     public void onClick(View v) {
@@ -160,10 +154,12 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
             public void run() {
                 try
                 {
+                    //變換圖片十次
                     for (int i=0; i<10; i++){
                         Thread.sleep(100);
                         handler.sendEmptyMessage(1);
                     }
+                    //最終決定並關掉AlertDialog
                     handler.sendEmptyMessage(2);
                     Thread.sleep(2000);
                     alertDialog.dismiss();
@@ -187,14 +183,27 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
             else if(msg.what==2){
                 pic1.setImageResource(my_decision);
                 pic2.setImageResource(his_decision);
+                Thread.interrupted();
+                //判斷輸贏情況
                 winnerCondition();
+                //執行輸贏後的內容
+                winorlose_after();
             }
             else if(msg.what==3){
-                myCharacter.setImageResource(char_id[char_img]);
+                myCharacter.setImageResource(mychar_id[char_img]);
                 char_img++;
                 if(char_img>3){
                     char_img = 0;
                 }
+                myMoveToPlace();
+            }
+            else if(msg.what==4){
+                hisCharacter.setImageResource(hischar_id[char_img]);
+                char_img++;
+                if(char_img>3){
+                    char_img = 0;
+                }
+                hisMoveToPlace();
             }
         }
     };
@@ -257,5 +266,96 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
             dual=true;
             Toast.makeText(this,"雙方平手",Toast.LENGTH_LONG).show();
         }
+    }
+    public void winorlose_after(){
+        if(win == true){
+            Thread characterMove = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        if(foot_rdn ==1) {
+                            Thread.sleep(500);
+                            for (int i = 0; i < 6; i++) {
+                                Thread.sleep(500);
+                                handler.sendEmptyMessage(3);
+                            }
+                            win =false;
+                        }
+                        else if(foot_rdn==2) {
+                            Thread.sleep(500);
+                            for (int i = 0; i < 12; i++) {
+                                Thread.sleep(500);
+                                handler.sendEmptyMessage(3);
+                            }
+                            win = false;
+                        }
+                        else if (foot_rdn==3){
+                            Thread.sleep(500);
+                            for (int i =0; i< 18; i++){
+                                Thread.sleep(500);
+                                handler.sendEmptyMessage(3);
+                            }
+                            win = false;
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+            characterMove.start();
+        }
+        if(lose== true){
+            Thread characterMove = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        if(foot_rdn ==1) {
+                            Thread.sleep(500);
+                            for (int i = 0; i < 6; i++) {
+                                Thread.sleep(500);
+                                handler.sendEmptyMessage(4);
+                            }
+                            lose =false;
+                        }
+                        else if(foot_rdn==2) {
+                            Thread.sleep(500);
+                            for (int i = 0; i < 12; i++) {
+                                Thread.sleep(500);
+                                handler.sendEmptyMessage(4);
+                            }
+                            lose = false;
+                        }
+                        else if (foot_rdn==3){
+                            Thread.sleep(500);
+                            for (int i =0; i< 18; i++){
+                                Thread.sleep(500);
+                                handler.sendEmptyMessage(4);
+                            }
+                            lose = false;
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+            characterMove.start();
+        }
+
+        if(dual==true){
+
+        }
+
+    }
+    public void myMoveToPlace(){
+        TransitionManager.beginDelayedTransition(constraintLayout);
+        mypos_y += 11;
+        applyconstraintset.setMargin(R.id.mycharacter,ConstraintSet.BOTTOM, mypos_y);
+        applyconstraintset.applyTo(constraintLayout);
+    }
+    public void hisMoveToPlace(){
+        TransitionManager.beginDelayedTransition(constraintLayout);
+        hispos_y += 11;
+        applyconstraintset.setMargin(R.id.hischaracter,ConstraintSet.BOTTOM, hispos_y);
+        applyconstraintset.applyTo(constraintLayout);
     }
 }
