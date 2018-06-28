@@ -22,7 +22,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView3"
+        android:id="@+id/hischaracter"
         android:layout_width="48dp"
         android:layout_height="64dp"
         android:layout_marginBottom="16dp"
@@ -54,7 +54,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView6"
+        android:id="@+id/mycharacter"
         android:layout_width="48dp"
         android:layout_height="64dp"
         android:layout_marginBottom="16dp"

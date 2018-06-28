@@ -12,18 +12,23 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.HashMap;
 
 public class GameInterface extends AppCompatActivity implements View.OnClickListener{
     ImageButton btn_paper,btn_sci,btn_stone,btn_rdn;
+    ImageView myCharacter,hisCharacter;
     ImageView pic1,pic2;
     TextView showFoot;
     AlertDialog.Builder builder;
+    AlertDialog alertDialog;
     private int pss_id,his_pss_id,my_decision,his_decision,random, foot_rdn;
     private int myrandom,hisrandom;
+    //隨機步數按鈕，贏、輸、或平手
     boolean bool_rdn_btn = false,win=false,lose=false,dual=false;
-
+    //角色圖片變動
+    private int[] char_id = new int[]{R.mipmap.lady_01,R.mipmap.lady_02,R.mipmap.lady_03,R.mipmap.lady_04};;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,15 +46,35 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
         btn_rdn.setOnClickListener(this);
 
         showFoot = findViewById(R.id.showFoot);
+        myCharacter = findViewById(R.id.mycharacter);
+        hisCharacter=findViewById(R.id.hischaracter);
 
+
+        if(win == true){
+            Thread characterMove = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        Thread.sleep(1000);
+                        for (int i =0; i<4; i++){
+                            Thread.sleep(500);
+                            handler.sendEmptyMessage(3);
+                        }
+
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+            characterMove.start();
+        }
         if(lose== true){
 
         }
-        if(win == true){
 
-        }
         if(dual==true){
-            
+
         }
 
     }
@@ -127,7 +152,9 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
         pic2 = view.findViewById(R.id.pic2);
 
         builder = new AlertDialog.Builder(this);
-        builder.setView(view).show();
+        builder.setView(view);
+        alertDialog = builder.create();
+        alertDialog.show();
         final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -138,6 +165,8 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
                         handler.sendEmptyMessage(1);
                     }
                     handler.sendEmptyMessage(2);
+                    Thread.sleep(2000);
+                    alertDialog.dismiss();
                 }
                 catch (Exception e){
                     e.printStackTrace();
@@ -159,7 +188,10 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
                 pic1.setImageResource(my_decision);
                 pic2.setImageResource(his_decision);
                 winnerCondition();
-                Thread.interrupted();
+            }
+            else if(msg.what==3){
+
+
             }
         }
     };
@@ -188,30 +220,39 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
     public void winnerCondition(){
         if(my_decision==R.mipmap.sci_img && his_decision==R.mipmap.sci_img){
             dual= true;
+            Toast.makeText(this,"雙方平手",Toast.LENGTH_LONG).show();
         }
         else if (my_decision==R.mipmap.sci_img && his_decision==R.mipmap.stone_img){
             lose=true;
+            Toast.makeText(this,"你輸了",Toast.LENGTH_LONG).show();
         }
         else if (my_decision==R.mipmap.sci_img && his_decision==R.mipmap.paper_img){
             win=true;
+            Toast.makeText(this,"你贏了",Toast.LENGTH_LONG).show();
         }
         else if (my_decision==R.mipmap.stone_img && his_decision==R.mipmap.sci_img){
             win=true;
+            Toast.makeText(this,"你贏了",Toast.LENGTH_LONG).show();
         }
         else if (my_decision==R.mipmap.stone_img && his_decision==R.mipmap.stone_img){
             dual=true;
+            Toast.makeText(this,"雙方平手",Toast.LENGTH_LONG).show();
         }
         else if (my_decision==R.mipmap.stone_img && his_decision==R.mipmap.paper_img){
             lose=true;
+            Toast.makeText(this,"你輸了",Toast.LENGTH_LONG).show();
         }
         else if (my_decision==R.mipmap.paper_img && his_decision==R.mipmap.sci_img){
             lose=true;
+            Toast.makeText(this,"你輸了",Toast.LENGTH_LONG).show();
         }
         else if (my_decision==R.mipmap.paper_img && his_decision==R.mipmap.stone_img){
             win=true;
+            Toast.makeText(this,"你贏了",Toast.LENGTH_LONG).show();
         }
         else if (my_decision==R.mipmap.paper_img && his_decision==R.mipmap.paper_img){
             dual=true;
+            Toast.makeText(this,"雙方平手",Toast.LENGTH_LONG).show();
         }
     }
 }
