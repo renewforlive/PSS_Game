@@ -29,7 +29,7 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
     boolean bool_rdn_btn = false,win=false,lose=false,dual=false;
     //角色圖片變動
     private int[] char_id = new int[]{R.mipmap.lady_01,R.mipmap.lady_02,R.mipmap.lady_03,R.mipmap.lady_04};;
-
+    private int char_img = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,9 +56,9 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
                 public void run() {
                     try{
                         Thread.sleep(1000);
-                        for (int i =0; i<4; i++){
-                            Thread.sleep(500);
+                        for (int i =0; i<10; i++){
                             handler.sendEmptyMessage(3);
+                            Thread.sleep(500);
                         }
 
 
@@ -190,8 +190,11 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
                 winnerCondition();
             }
             else if(msg.what==3){
-
-
+                myCharacter.setImageResource(char_id[char_img]);
+                char_img++;
+                if(char_img>3){
+                    char_img = 0;
+                }
             }
         }
     };
