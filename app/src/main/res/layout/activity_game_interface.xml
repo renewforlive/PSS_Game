@@ -37,7 +37,7 @@
             android:layout_width="48dp"
             android:layout_height="64dp"
             android:layout_marginBottom="28dp"
-            android:layout_marginStart="84dp"
+            android:layout_marginStart="96dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@mipmap/man_01" />

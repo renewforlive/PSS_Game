@@ -1,5 +1,7 @@
 package com.mycaculate.pss_game;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.constraint.ConstraintLayout;
@@ -35,8 +37,8 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
     private int pss_id,his_pss_id,my_decision,his_decision,random, foot_rdn;
     //宣告雙方隨機產生的數字1~3
     private int myrandom,hisrandom;
-    //隨機步數按鈕，贏、輸、或平手的布林值
-    boolean bool_rdn_btn = false,win=false,lose=false,dual=false;
+    //隨機步數按鈕，贏、輸、或平手的布林值，勝利或失敗
+    boolean bool_rdn_btn = false,win=false,lose=false,dual=false,winner=false,fail=false;
     //角色圖片變動
     private int[] mychar_id = new int[]{R.mipmap.lady_01,R.mipmap.lady_02,R.mipmap.lady_03,R.mipmap.lady_04};
     private int[] hischar_id = new int[]{R.mipmap.man_01,R.mipmap.man_02,R.mipmap.man_03,R.mipmap.man_04};
@@ -48,6 +50,8 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
     private ConstraintSet applyconstraintset;
     //每次移動Y軸
     private int mypos_y = 60, hispos_y = 60;
+    //宣告Intent
+    Intent intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -204,8 +208,35 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
                     char_img = 0;
                 }
                 hisMoveToPlace();
+                if (winner == true) {
+                    builder = new AlertDialog.Builder(GameInterface.this);
+                    builder.setTitle("勝利訊息")
+                            .setMessage("恭喜你勝利了")
+                            .setPositiveButton("確定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    intent.setClass(GameInterface.this, Index.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }).show();
+                }
+
+                if (fail==true){
+                    builder = new AlertDialog.Builder(GameInterface.this);
+                    builder.setTitle("失敗訊息")
+                            .setMessage("你輸了")
+                            .setPositiveButton("確定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    intent.setClass(GameInterface.this,Index.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }).show();
+                    }
+                }
             }
-        }
     };
     public void changePic(){
         myrandom = (int)(Math.random()*3)+1;
@@ -276,7 +307,7 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
                         if(foot_rdn ==1) {
                             Thread.sleep(500);
                             for (int i = 0; i < 6; i++) {
-                                Thread.sleep(500);
+                                Thread.sleep(300);
                                 handler.sendEmptyMessage(3);
                             }
                             win =false;
@@ -284,7 +315,7 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
                         else if(foot_rdn==2) {
                             Thread.sleep(500);
                             for (int i = 0; i < 12; i++) {
-                                Thread.sleep(500);
+                                Thread.sleep(300);
                                 handler.sendEmptyMessage(3);
                             }
                             win = false;
@@ -292,7 +323,7 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
                         else if (foot_rdn==3){
                             Thread.sleep(500);
                             for (int i =0; i< 18; i++){
-                                Thread.sleep(500);
+                                Thread.sleep(300);
                                 handler.sendEmptyMessage(3);
                             }
                             win = false;
@@ -312,7 +343,7 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
                         if(foot_rdn ==1) {
                             Thread.sleep(500);
                             for (int i = 0; i < 6; i++) {
-                                Thread.sleep(500);
+                                Thread.sleep(300);
                                 handler.sendEmptyMessage(4);
                             }
                             lose =false;
@@ -320,7 +351,7 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
                         else if(foot_rdn==2) {
                             Thread.sleep(500);
                             for (int i = 0; i < 12; i++) {
-                                Thread.sleep(500);
+                                Thread.sleep(300);
                                 handler.sendEmptyMessage(4);
                             }
                             lose = false;
@@ -328,7 +359,7 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
                         else if (foot_rdn==3){
                             Thread.sleep(500);
                             for (int i =0; i< 18; i++){
-                                Thread.sleep(500);
+                                Thread.sleep(300);
                                 handler.sendEmptyMessage(4);
                             }
                             lose = false;
@@ -348,14 +379,26 @@ public class GameInterface extends AppCompatActivity implements View.OnClickList
     }
     public void myMoveToPlace(){
         TransitionManager.beginDelayedTransition(constraintLayout);
-        mypos_y += 11;
-        applyconstraintset.setMargin(R.id.mycharacter,ConstraintSet.BOTTOM, mypos_y);
-        applyconstraintset.applyTo(constraintLayout);
+        if (mypos_y>720){
+            mypos_y = 720;
+            winner=true;
+        }
+        else{
+            mypos_y += 11;
+            applyconstraintset.setMargin(R.id.mycharacter,ConstraintSet.BOTTOM, mypos_y);
+            applyconstraintset.applyTo(constraintLayout);
+        }
     }
     public void hisMoveToPlace(){
         TransitionManager.beginDelayedTransition(constraintLayout);
-        hispos_y += 11;
-        applyconstraintset.setMargin(R.id.hischaracter,ConstraintSet.BOTTOM, hispos_y);
-        applyconstraintset.applyTo(constraintLayout);
+        if (hispos_y>720){
+            hispos_y = 720;
+            fail=true;
+        }
+        else{
+            hispos_y += 11;
+            applyconstraintset.setMargin(R.id.hischaracter,ConstraintSet.BOTTOM, hispos_y);
+            applyconstraintset.applyTo(constraintLayout);
+        }
     }
 }
